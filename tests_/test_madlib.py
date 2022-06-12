@@ -1,137 +1,35 @@
-"""
-Testing for madlibs
-"""
-
-from madlib import madlib, file_io
 import pytest
+from madlib_cli.madlib import read_template, parse_template, merge
 
 
-# test read_madlib_file
+def test_read_template_returns_stripped_string():
+    actual = read_template("assets/dark_and_stormy_night_template.txt")
+    expected = "It was a {Adjective} and {Adjective} {Noun}."
+    assert actual == expected
 
 
-def test_read_madlib_file():
-    """
-    This tests_ the function that uses file_io's read_file to read the
-    madlibs file
-    """
+# @pytest.mark.skip("pending")
+def test_parse_template():
+    actual_stripped, actual_parts = parse_template(
+        "It was a {Adjective} and {Adjective} {Noun}."
+    )
+    expected_stripped = "It was a {} and {} {}."
+    expected_parts = ("Adjective", "Adjective", "Noun")
 
-    actual_filename = 'sample_template'
-    expected_output = 'Hello {name}!\n'
-
-    assert madlib.read_madlib_file(actual_filename)[1] == expected_output
-
-
-def test_not_madlibs_file():
-    """
-    This tests_ the function that uses file_io's read_file to read the
-    madlibs file, but uses a file that is not a madlibs file
-    """
-
-    actual_filename = 'sample'
-    expected_output = 'The file was not a madlibs file!'
-
-    assert madlib.read_madlib_file(actual_filename)[1] == expected_output
+    assert actual_stripped == expected_stripped
+    assert actual_parts == expected_parts
 
 
-def test_madlib_read_exception():
-    """
-    This tests_ for read errors - i don't have any corrupt data to provide so
-    I just tested for file not found
-    """
-
-    actual_filename = 'fasdfdafa'
-    expected_output = 'File was not found!'
-
-    assert madlib.read_madlib_file(actual_filename)[1] == expected_output
+# @pytest.mark.skip("pending")
+def test_merge():
+    actual = merge("It was a {} and {} {}.", ("dark", "stormy", "night"))
+    expected = "It was a dark and stormy night."
+    assert actual == expected
 
 
-# prompt_user_filename
-
-
-def test_filename_input_match():
-    """
-    This tests_ whether what the user inputs matches the output of the function
-    """
-    def mock_input(s):
-        return 'foobar'
-    madlib.input = mock_input
-    assert madlib.prompt_user_filename() == 'foobar'
-
-
-# process_madlibs_template
-
-
-def test_if_template():
-    """
-    This tests_ with a file that is a proper template to make sure it is
-    processed correctly.
-    """
-    madlibs_template = [True, 'Hello {name}']
-
-    def mock_input(s):
-        return 'foobar'
-    madlib.input = mock_input
-    assert madlib.process_madlibs_template(madlibs_template) == [True, 'Hello foobar']
-
-
-def test_if_not_template():
-    """
-    This tests_ with a file that is not a proper template to make sure there
-    is a rejection.
-    """
-    madlibs_template = [False, 'Hello lunch']
-
-    assert madlib.process_madlibs_template(madlibs_template) == [False, 'Hello lunch']
-
-
-# prompt_for_words
-
-
-def test_prompt_for_words_output():
-    """
-    This tests_ the output of the function when the proper input has been
-    provided
-    """
-    def mock_input(s):
-        return 'foobar'
-
-    madlib.input = mock_input
-    input_words = ['Adjective']
-
-    assert madlib.prompt_for_words(input_words) == ['foobar']
-
-
-# output_to_user
-
-
-def test_output_save():
-    """
-    This tests_ whether the file is written and output to a file
-    """
-    user_input = iter(['y', 'filename'])
-
-    def mock_input(s):
-        return next(user_input)
-
-    madlib.input = mock_input
-
-    madlib.output_to_user([True, 'Completed madlib'])
-
-    assert file_io.read_template('filename') == 'Completed madlib'
-
-
-def test_no_save():
-    """
-    This tests_ whether the madlib is saved when it's not requested to be saved.
-    """
-    user_input = iter(['n', 'another_filename'])
-
-    def mock_input(s):
-        return next(user_input)
-
-    madlib.input = mock_input
-
-    madlib.output_to_user([True, 'Completed madlib'])
+# @pytest.mark.skip("pending")
+def test_read_template_raises_exception_with_bad_path():
 
     with pytest.raises(FileNotFoundError):
-        file_io.read_template('another_filename')
+        path = "missing.txt"
+        read_template(path)
